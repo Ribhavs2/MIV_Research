@@ -6,8 +6,10 @@ RUN apt-get update && apt-get install -y \
     python3.8 \
     python3-pip \
     python3.8-dev \
-    libmpich-dev \
-    wget 
+    # libmpich-dev \
+    wget \
+    git \
+    vim
 
 RUN python3.8 -m pip install --upgrade pip
 
@@ -31,13 +33,22 @@ ENV LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}
 
 RUN pip install --no-cache-dir --no-binary=h5py h5py
 
-RUN pip install --no-cache-dir MiV-OS spyking-circus
+# RUN pip install --no-cache-dir MiV-OS spyking-circus
+RUN pip install --no-cache-dir MiV-OS
+
+RUN pip install git+https://github.com/skim0119/spyking-circus.git
 
 # Test scripts to verify installation
 COPY test_mpi.py /test_mpi.py
 COPY test_parallel_h5py.py /test_parallel_h5py.py
 RUN mpiexec -n 4 python3.8 /test_mpi.py
 RUN mpiexec -n 4 python3.8 /test_parallel_h5py.py
+
+# RUN pip install --no-cache-dir nose
+# RUN git clone https://github.com/spyking-circus/spyking-circus.git /opt/spyking-circus
+# RUN nosetests /opt/spyking-circus/tests/
+
+
 
 # Clean up pip cache
 RUN rm -rf /root/.cache/pip
